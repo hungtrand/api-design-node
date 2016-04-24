@@ -2,8 +2,9 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var _ = require('lodash');
+var path = require("path");
 
-app.use(express.static('client'));
+app.use(express.static(path.join(__dirname, '../client')));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -45,9 +46,21 @@ app.put('/lions/:id', function(req, res) {
   }
 });
 
-app.set('port', (process.env.PORT || 8080));
+app.delete('/lions/:id', function(req, res) { 
+    var lion = _.findIndex(lions, {id: req.params.id});
+    console.log(lion); 
+    if (!lions[lion]) {
+	res.send("couldn't find the lion. Did Scar find him first?.");
+    } else {
+        var lionName = lions[lion].name;
+	lions.splice(lion, 1);
+        res.send(lionName + " has been taken out");
+    }
+});
 
-app.listen(app.get('port'), function() {
- console.log("Node app is running at localhost:" + app.get('port'))
+app.set('port', (process.env.PORT || 8080));
+app.set('ip', (process.env.IP || '0.0.0.0'));
+app.listen(app.get('port'), app.get('ip'), function() {
+ console.log("Node app is running at " + app.get('ip') + ":" + app.get('port'))
 });
 
